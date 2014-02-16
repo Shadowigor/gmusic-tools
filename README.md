@@ -16,7 +16,7 @@ The main features are the following ones:
 * duplicates.py
     * Removes duplicates from Google Music
     * Doesn't care about 'Album Artist' (Unlike Google's Music Manager)
-    * Preserves how many times you have listened to a track (The bigger value is chosen) (still in development)
+    * Preserves how many times you have listened to a track (The bigger value is chosen)
     * Deletes the older file
 
 ##Getting started
@@ -64,6 +64,7 @@ The following features will (hopefully) be in future releases:
 * Case insensitive duplicate detection
 * Integrate duplicates.py in sync.py
 * Add a menu
+
 _____________________________________________________________________
 
 This program is licenced under the GPLv3. See LICENCE.
