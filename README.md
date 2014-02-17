@@ -1,5 +1,5 @@
-##gmusic-sync: Synchronisation scripts for Google Play Music
-gmusic-sync contains scripts for a more powerful synchronisation of your local files with [Google
+##gmusic-tools: Scripts for Google Play Music
+gmusic-tools contains scripts for a more powerful management of [Google
 Music](https://music.google.com/). They are all completely written in Python and are based upon the [unofficial
 gmusicapi](https://github.com/simon-weber/Unofficial-Google-Music-API).
 
