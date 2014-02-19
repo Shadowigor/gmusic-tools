@@ -18,6 +18,8 @@ The main features are the following ones:
     * Doesn't care about 'Album Artist' (Unlike Google's Music Manager)
     * Preserves how many times you have listened to a track (The bigger value is chosen)
     * Deletes the older file
+* not_listened.py
+    * Creates a playlist with tracks you haven't listened to yet
 
 ##Getting started
 ### Install dependencies
@@ -55,6 +57,13 @@ To use duplicates.py you simply have to execute the following command:
 python duplicates.py
 
 This program should also be self-explanatory.
+
+#### not_listened.py
+To use not_listened.py you simply have to execute the following command:
+
+python not_listened.py
+
+This program should be self-explanatory as well.
 
 ##To-Do's
 The following features will (hopefully) be in future releases:

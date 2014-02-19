@@ -12,7 +12,7 @@ import os.path
 ### DEFINED BY THE USER ########################################################
 
 # Here is where the music is stored
-rootdir = "/data/Musik/01/"
+rootdir = "/music/"
 
 # Songs won't be automatically deleted, they will be moved to that location instead
 trash = "./.trash/"
@@ -121,7 +121,7 @@ list_out = ""
 i = 0
 last_i = 0
 
-sys.stdout.write("\rSynchronising...   0%")
+sys.stdout.write("\rSynchronizing...   0%")
 sys.stdout.flush()
 file_count = sum([len(files) for r, d, files in os.walk(rootdir)])
 
@@ -136,7 +136,7 @@ for root, subFolder, files in os.walk(rootdir):
 		i += 1
 
 		if((100 * i) / file_count > last_i):
-			sys.stdout.write("\rSynchronising... " + str((100 * i) / file_count).rjust(3) + "%")
+			sys.stdout.write("\rSynchronizing... " + str((100 * i) / file_count).rjust(3) + "%")
 			sys.stdout.flush()
 			last_i += 1
 

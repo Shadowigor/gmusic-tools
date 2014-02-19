@@ -39,7 +39,7 @@ last_i = 0
 
 while(i < len(tracks) - 2):
 	if((100 * i) / len(tracks) > last_i):
-		sys.stdout.write("\rSynchronising... " + str((100 * i) / len(tracks)).rjust(3) + "%")
+		sys.stdout.write("\rSynchronizing... " + str((100 * i) / len(tracks)).rjust(3) + "%")
 		sys.stdout.flush()
 		last_i += 1
 	while(
@@ -58,7 +58,7 @@ while(i < len(tracks) - 2):
 		tracks[i]["rating"] = rating
 		to_update.append(tracks[i])
 	i += 1;
-print "\rSynchronising... 100%"
+print "\rSynchronizing... 100%"
 
 if not to_update:
 	print "There are no changes to be made"
