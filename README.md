@@ -3,7 +3,7 @@ gmusic-tools contains scripts for a more powerful management of [Google
 Music](https://music.google.com/). They are all completely written in Python and are based upon the [unofficial
 gmusicapi](https://github.com/simon-weber/Unofficial-Google-Music-API).
 
-__gmusic-sync is not supported by Google in any way.__
+__gmusic-tools is not supported by Google in any way.__
 
 The main features are the following ones:
 
@@ -16,7 +16,7 @@ The main features are the following ones:
 * duplicates.py
     * Removes duplicates from Google Music
     * Doesn't care about 'Album Artist' (Unlike Google's Music Manager)
-    * Preserves how many times you have listened to a track (The bigger value is chosen)
+    * Preserves how many times you have listened to a track (still in development, dont' rely on it!)
     * Deletes the older file
 * not_listened.py
     * Creates a playlist with tracks you haven't listened to yet
