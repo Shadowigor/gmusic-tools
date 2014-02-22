@@ -44,7 +44,7 @@ for track in list:
 		playlist.append(track["id"])
 	if(len(playlist) >= 1000):
 		print " Playlist full"
-		break;
+		break
 
 # Getting playlists
 sys.stdout.write("\nGetting playlists... ")
