@@ -29,7 +29,7 @@ To install python type in the following command (Ubuntu only):
 
 sudo apt-get install python
 
-To install the gmusicapi type in the following command:
+The scripts only work with python2 (yet) and not with python3. To install the gmusicapi type in the following command:
 
 pip install gmusicapi
 
