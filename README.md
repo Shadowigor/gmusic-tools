@@ -68,7 +68,6 @@ This program should be self-explanatory as well.
 ##To-Do's
 The following features will (hopefully) be in future releases:
 
-* Save the login informations in a file
 * Choose what changes you want to execute
 * Case insensitive duplicate detection
 * Integrate duplicates.py in sync.py
