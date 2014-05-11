@@ -23,6 +23,9 @@ list_path = "./list"
 # Credentials file for the Musicmanager
 cred_path = "./credentials"
 
+# Standard username
+std_usr_file = "./std_usr"
+
 ################################################################################
 
 # Check the user-defined file paths
@@ -65,7 +68,7 @@ if not os.path.isfile(list_path):
 
 if not os.path.isfile(cred_path):
 	while 1:
-		sys.stdout.write("Couldn't find credentials. Generate them now (y/n)?")
+		sys.stdout.write("Couldn't find credentials. Generate them now (y/n)? ")
 		sys.stdout.flush()
 		x = sys.stdin.readline()
 		if(x == "y\n"):
@@ -75,12 +78,42 @@ if not os.path.isfile(cred_path):
 			print "Error: Credentials needed"
 			exit()
 
-# Get username and password
-sys.stdout.write("Username: ")
-sys.stdout.flush()
-username = sys.stdin.readline()[:-1]
+# Get standard username
+if os.path.isfile(std_usr_file):
+	try:
+		with open(std_usr_file, "r") as file:
+			username = file.readline()
+			print "Using standard user (" + username + ")"
+			print "Leave password blank to change the username"
+	except IOError:
+		username = ""
+else:
+	username = ""
 
-password = getpass.getpass()
+password = ""
+while password == "":
+	# Get username
+	if username == "":
+		sys.stdout.write("Username: ")
+		sys.stdout.flush()
+		username = sys.stdin.readline()[:-1]
+		x = ""
+		while x != "n\n":
+			sys.stdout.write("Save username as standard username (y/n)? ")
+			sys.stdout.flush()
+			x = sys.stdin.readline()
+			if(x == "y\n" or x == "\n"):
+				try:
+					with open(std_usr_file, "w") as file:
+						file.write(username)
+				except IOError:
+					print "Error: Couldn't write standard user to file"
+				break
+
+	# Get password
+	password = getpass.getpass()
+	if password == "":
+		username = ""
 
 # Login into Google Music
 sys.stdout.write("Logging in... ")
