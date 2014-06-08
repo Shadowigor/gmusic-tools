@@ -1,3 +1,5 @@
+###Because the whole file structure is reorganized at the moment, the program won't work. Please wait until the restructuring process is done or get a previous version.
+
 ##gmusic-tools: Scripts for Google Play Music
 gmusic-tools contains scripts for a more powerful management of [Google
 Music](https://music.google.com/). They are all completely written in Python and are based upon the [unofficial

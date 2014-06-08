@@ -1,0 +1,5 @@
+StandardUsername=
+RootDirectory=/music
+TrashPath=~/gmusic-tools/data/.trash
+CredentialsPath=~/gmusic-tools/data/credentials
+UploadedListPath=~/gmusic-tools/data/list
