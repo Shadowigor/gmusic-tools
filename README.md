@@ -1,4 +1,4 @@
-###Because the whole file structure is reorganized at the moment, the program won't work. Please wait until the restructuring process is done or get a previous version.
+###Because the whole file structure is reorganized at the moment, the program won't work properly. Please wait until the restructuring process is done or get a previous version.
 
 ##gmusic-tools: Scripts for Google Play Music
 gmusic-tools contains scripts for a more powerful management of [Google
@@ -9,19 +9,21 @@ __gmusic-tools is not supported by Google in any way.__
 
 The main features are the following ones:
 
-* sync.py
+* Synchronize your music
     * Uploads new music that you add to your local library
     * Deletes local files that were deleted in Google Music
     * Deletes tracks in Google music that were deleted locally
     * Doesn't care about 'Album Artist' -> Less duplicated uploads
     * Local files will be moved to a trash directory instead of being permanently deleted
-* duplicates.py
+* Detect and delete duplicates
     * Removes duplicates from Google Music
     * Doesn't care about 'Album Artist' (Unlike Google's Music Manager)
     * Preserves how many times you have listened to a track (still in development, dont' rely on it!)
     * Deletes the older file
-* not_listened.py
-    * Creates a playlist with tracks you haven't listened to yet
+* Create a playlist with tracks you haven't listened to yet
+* Insert album arts
+    *  Searches for local image files in the music folder
+    * If nothing is found, search the internet for it
 
 ##Getting started
 ### Install dependencies
@@ -40,41 +42,17 @@ documentation](http://unofficial-google-music-api.readthedocs.org/en/latest/usag
 informations.
 
 ### Usage
-#### sync.py
-To use sync.py, you first have to edit it. At the top of the file are 4 file paths which you may have to edit. The
-most important one is 'rootdir'. This is the directory on your computer where all your music is stored. It will be
-searched recursively. The defaults are fine for all other variables, but you can change them if you like.
+To start the programm, change to to gmusic-tool directory and enter the following command:
 
-To start sync.py, just type in the following command while you're in the gmusic-sync directory:
+python2 gmt.py
 
-python sync.py
-
-The program itself should be self-explanatory. Note, that if it says 'Local files deleted', that the files aren't
-really deleted. They are moved to the trash directory. This should prevent you from accidently delete something you
-wanted to keep.
-
-#### duplicates.py
-To use duplicates.py you simply have to execute the following command:
-
-python duplicates.py
-
-This program should also be self-explanatory.
-
-#### not_listened.py
-To use not_listened.py you simply have to execute the following command:
-
-python not_listened.py
-
-This program should be self-explanatory as well.
+The programm itself should be quite self-explanatory.
 
 ##To-Do's
 The following features will (hopefully) be in future releases:
 
-* Choose what changes you want to execute
 * Case insensitive duplicate detection
-* Integrate duplicates.py in sync.py
-* Add a menu
-
+* Add a GUI
 _____________________________________________________________________
 
 This program is licenced under the GPLv3. See LICENCE.

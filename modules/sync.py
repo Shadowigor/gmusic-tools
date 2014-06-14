@@ -1,39 +1,31 @@
 #!/usr/bin/env python2
 
-from gmusicapi import Mobileclient, Musicmanager
-from mutagen.easyid3 import EasyID3
-from mutagen.flac import FLAC
-import shutil
 import os
 import sys
-import getpass
 import os.path
+from mutagen.easyid3 import EasyID3
+from mutagen.flac import FLAC
 
 def gmtGetSyncChanges(gmObj, tracks, list):
 	to_upload = []
 	to_delete = []
-	failed = []
-	upl_list_out = []
 	list_out = ""
 	i = 0
 	last_i = 0
 	
-	sys.stdout.write("\rSynchronizing...   0%")
-	sys.stdout.flush()
+	gmPrint("Synchronizing...   0%", 0)
 	file_count = sum([len(files) for r, d, files in os.walk(rootdir)])
 	
 	if(file_count == 0):
-		print "No files found"
+		gmtPrint("No files found")
 		return 1
 	
-	# Check what we have to upload or delete
 	for root, subFolder, files in os.walk(rootdir):
 		for file in files:
 			i += 1
 	
 			if((100 * i) / file_count > last_i):
-				sys.stdout.write("\rSynchronizing... " + str((100 * i) / file_count).rjust(3) + "%")
-				sys.stdout.flush()
+				gmtPrint("\rSynchronizing... " + str((100 * i) / file_count).rjust(3) + "%", 0)
 				last_i += 1
 	
 			file = root + '/' + file
@@ -57,106 +49,56 @@ def gmtGetSyncChanges(gmObj, tracks, list):
 					to_delete.append(file)
 				else:
 					to_upload.append(file)
-					upl_list_out.append(tag["artist"][0] + "\t" + tag["title"][0] + "\t" + tag["album"][0] + "\n")
+#					upl_list_out.append(tag["artist"][0] + "\t" + tag["title"][0] + "\t" + tag["album"][0] + "\n")
 	
 	return to_upload, to_delete, tracks # To Upload, To Delete Locally, To Delete Remotely
 
-# 	# Check if there is something to change
-# 	if not to_upload and not to_delete and not tracks:
-# 		print "\nThere are no changes to be made"
-# 		return 2
-# 	
-# 	# Print the changes to will be made
-# 	print "\n\nTo upload:\n"
-# 	for x in to_upload:
-# 		print x
-# 	
-# 	print "\nTo delete locally:\n"
-# 	for x in to_delete:
-# 		print x
-# 	
-# 	print "\nTo delete remotely:\n"
-# 	for x in tracks:
-# 		print x["artist"] + "\t" + x["title"] + "\t" + x["album"]
-# 	sys.stdout.write("\n")
-# 	
-# 	# Ask the user what to do next
-# 	while 1:
-# 		sys.stdout.write("Execute changes (y/n)? ")
-# 		sys.stdout.flush()
-# 		x = sys.stdin.readline()
-# 		if(x == "y\n"):
-# 			break
-# 		elif(x == "n\n"):
-# 			gm_mc.logout()
-# 			exit()
-# 	
-# 	# Delete the local files that were deleted in Google Music
-# 	if to_delete:
-# 		sys.stdout.write("Deleting local files... ")
-# 		sys.stdout.flush()
-# 		try:
-# 			for t in to_delete:
-# 				shutil.move(t, trash)
-# 		except:
-# 			print "Error: Cannot move files"
-# 			gm_mc.logout()
-# 			exit()
-# 		print "Done"
-# 	
-# 	# Delete the tracks in Google Music that were deleted locally
-# 	i = 0
-# 	if tracks:
-# 		sys.stdout.write("Deleting remote files... ")
-# 		for t in tracks:
-# 			if not gm_mc.delete_songs(t["id"]):
-# 				i += 1
-# 		print "Done"
-# 	if i:
-# 		print "Failed to delete " + i + " songs"
-# 	
-# 	gm_mc.logout()
-# 	
-# 	if to_upload:
-# 		sys.stdout.write("Logging in... ")
-# 		sys.stdout.flush()
-# 		gm_mm = Musicmanager()
-# 		if not gm_mm.login(cred_path):
-# 			print "Error: Wrong credentials"
-# 			exit()
-# 		print "Done"
-# 	
-# 		# Upload the files that were not already in Google Music
-# 		sys.stdout.write("Uploading files...   0% ")
-# 		sys.stdout.flush()
-# 		i = 0
-# 		file_count = len(to_upload)
-# 		for file in to_upload:
-# 			sys.stdout.write("\33[2K\r")
-# 			sys.stdout.write("Uploading files... " + str((100 * i) / file_count).rjust(3) + "% " + file)
-# 			sys.stdout.flush()
-# 			i += 1
-# 			x = gm_mm.upload(file)
-# 			if x[2]:
-# 				failed.append(file)
-# 			else:
-# 				list_out = list_out + upl_list_out.pop(0)
-# 	
-# 		gm_mm.logout()
-# 		sys.stdout.write("\33[2K\r")
-# 		print "Uploading files... 100%"
-# 	
-# 		if failed:
-# 			print "\nFailed to Upload the following files:\n"
-# 			for x in failed:
-# 				print x
-# 	
-# 	sys.stdout.write("Writing list file of uploaded files... ")
-# 	sys.stdout.flush()
-# 	try:
-# 		with open(list_path, "w") as list_file:
-# 			list_file.write(list_out.encode("utf8"))
-# 	except IOError:
-# 		print "Error: Cannot write list of uploaded files"
-# 		exit()
-# 	print "Done"
+def gmtMoveToTrash(to_delete):
+	try:
+		for x in to_delete:
+			shutil.move(x, conf_trash_path)
+		gmtDebug("gmtMoveToTrash: Moved " + str(len(to_delete)) + " files")
+	except:
+		gmtError("Error: Cannot move files")
+		return -1
+	return 0
+
+def gmtDeleteTracks(gmObj, to_delete):
+	i = 0
+	for x in to_delete:
+		if not gmObj.delete_songs(x["id"]):
+			i += 1
+	gmtDebug("gmtDeleteTracks: Deleted " + str(len(to_delete) - i) + " files")
+	if i:
+		gmtError("Failed to delete " + str(i) + " songs")
+		return -i
+	return 0
+
+def gmtUploadSongs(to_upload):
+	failed = []
+	
+	upObj = Musicmanager()
+	if not upObj.login(conf_cred_path):
+		gmtError("Wrong credentials (or no internet connection)")
+		return -1
+	
+	gmtPrint("Uploading files...   0% ", 0)
+	i = 0
+	file_count = len(to_upload)
+	for file in to_upload:
+		gmtPrint("\33[2K\r", 0)
+		gmtPrint("Uploading files... " + str((100 * i) / file_count).rjust(3) + "% " + file, 0)
+		i += 1
+		x = upObj.upload(file, "320k")
+		if x[2]:
+			failed.append(file)
+	
+	upObj.logout()
+	sys.stdout.write("\33[2K\r")
+	gmtPrint("Uploading files... 100%")
+	
+	if failed:
+		gmtError("Failed to Upload the following files:")
+		for x in failed:
+			gmtError(x)
+	return failed
