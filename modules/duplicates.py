@@ -1,9 +1,13 @@
 #!/usr/bin/env python2
 
 import sys
+import modules.error as error
 from misc import *
+from modules.error import ERROR
 
 def gmtGetDuplicates(tracks):
+	ERROR = 0
+	
 	to_delete = []
 	to_update = []
 	i = 0

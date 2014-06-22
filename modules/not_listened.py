@@ -1,8 +1,12 @@
 #!/usr/bin/env python2
 
 import sys
+import modules.error as error
+from modules.error import ERROR
 
 def gmtGetNotListenedTracks(tracks):
+	ERROR = 0
+	
 	playlist = []
 	i = 0
 	
@@ -15,5 +19,7 @@ def gmtGetNotListenedTracks(tracks):
 			playlist.append(track["id"])
 		if(len(playlist) >= 1000):
 			gmtPrint(" Playlist full")
+			ERROR = error.PLAYLIST_FULL
 			break
+	
 	return playlist

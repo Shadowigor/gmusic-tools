@@ -3,24 +3,32 @@
 import os
 import sys
 import os.path
+import modules.config
+import modules.error as error
 from mutagen.easyid3 import EasyID3
 from mutagen.flac import FLAC
+from misc import *
+from modules.error import ERROR
+from gmusicapi import Musicmanager
 
-def gmtGetSyncChanges(gmObj, tracks, list):
+def gmtGetSyncChanges(tracks, list):
+	ERROR = 0
+	
 	to_upload = []
 	to_delete = []
 	list_out = ""
 	i = 0
 	last_i = 0
 	
-	gmPrint("Synchronizing...   0%", 0)
-	file_count = sum([len(files) for r, d, files in os.walk(rootdir)])
+	gmtPrint("Synchronizing...   0%", 0)
+	file_count = sum([len(files) for r, d, files in os.walk(modules.config.root_dir)])
 	
 	if(file_count == 0):
-		gmtPrint("No files found")
-		return 1
+		gmtPrintV("No files found")
+		ERROR = error.NO_SONGS
+		return [], [], []
 	
-	for root, subFolder, files in os.walk(rootdir):
+	for root, subFolder, files in os.walk(modules.config.root_dir):
 		for file in files:
 			i += 1
 	
@@ -41,7 +49,7 @@ def gmtGetSyncChanges(gmObj, tracks, list):
 				  track["artist"] == tag["artist"][0] and
 				  track["title"]  == tag["title"][0] and
 				  track["album"]  == tag["album"][0]):
-					list_out = list_out + tag["artist"][0] + "\t" + tag["title"][0] + "\t" + tag["album"][0] + "\n"
+#					list_out = list_out + tag["artist"][0] + "\t" + tag["title"][0] + "\t" + tag["album"][0] + "\n"
 					tracks.remove(track)
 					break
 			else:
@@ -51,40 +59,51 @@ def gmtGetSyncChanges(gmObj, tracks, list):
 					to_upload.append(file)
 #					upl_list_out.append(tag["artist"][0] + "\t" + tag["title"][0] + "\t" + tag["album"][0] + "\n")
 	
+	gmtPrint("\rSynchronizing... 100%")
+	gmtPrintVV("gmtGetSyncChanges: To Upload: " + str(len(to_upload)) + " To Delete Locally: " + str(len(to_delete)) + " To Delete Remotely: " + str(len(tracks)))
+	
 	return to_upload, to_delete, tracks # To Upload, To Delete Locally, To Delete Remotely
 
 def gmtMoveToTrash(to_delete):
+	ERROR = 0
+	
 	try:
 		for x in to_delete:
 			shutil.move(x, conf_trash_path)
-		gmtDebug("gmtMoveToTrash: Moved " + str(len(to_delete)) + " files")
+		gmtPrintVV("gmtMoveToTrash: Moved " + str(len(to_delete)) + " files")
 	except:
-		gmtError("Error: Cannot move files")
-		return -1
-	return 0
+		gmtPrintV("gmtMoveToTrash: Cannot move files")
+		ERROR = error.FILE_ERROR
 
 def gmtDeleteTracks(gmObj, to_delete):
+	ERROR = 0
+	
 	i = 0
 	for x in to_delete:
 		if not gmObj.delete_songs(x["id"]):
 			i += 1
-	gmtDebug("gmtDeleteTracks: Deleted " + str(len(to_delete) - i) + " files")
+	gmtPrintVV("gmtDeleteTracks: Deleted " + str(len(to_delete) - i) + " files")
 	if i:
-		gmtError("Failed to delete " + str(i) + " songs")
+		gmtPrintV("Failed to delete " + str(i) + " songs")
+		ERROR = error.FILE_ERROR
 		return -i
 	return 0
 
 def gmtUploadSongs(to_upload):
+	ERROR = 0
+	
 	failed = []
 	
 	upObj = Musicmanager()
-	if not upObj.login(conf_cred_path):
-		gmtError("Wrong credentials (or no internet connection)")
-		return -1
+	if not upObj.login(modules.config.cred_path):
+		gmtPrintV("gmtUploadSongs: Wrong credentials (or no internet connection)")
+		ERROR = error.LOGIN_FAILED
+		return []
 	
-	gmtPrint("Uploading files...   0% ", 0)
 	i = 0
 	file_count = len(to_upload)
+	gmtPrintVV("gmtUploadSongs: Files to upload: " + str(file_count))
+	gmtPrint("Uploading files...   0% ", 0)
 	for file in to_upload:
 		gmtPrint("\33[2K\r", 0)
 		gmtPrint("Uploading files... " + str((100 * i) / file_count).rjust(3) + "% " + file, 0)
@@ -98,7 +117,8 @@ def gmtUploadSongs(to_upload):
 	gmtPrint("Uploading files... 100%")
 	
 	if failed:
-		gmtError("Failed to Upload the following files:")
+		gmtPrintV("gmtUploadSongs: Failed to upload the following files:")
 		for x in failed:
-			gmtError(x)
+			gmtPrintV(x)
+	
 	return failed
