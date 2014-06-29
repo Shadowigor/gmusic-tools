@@ -1,5 +1,3 @@
-###Because the whole file structure is reorganized at the moment, the program won't work properly. Please wait until the restructuring process is done or get a previous version.
-
 ##gmusic-tools: Scripts for Google Play Music
 gmusic-tools contains scripts for a more powerful management of [Google
 Music](https://music.google.com/). They are all completely written in Python and are based upon the [unofficial
@@ -18,11 +16,11 @@ The main features are the following ones:
 * Detect and delete duplicates
     * Removes duplicates from Google Music
     * Doesn't care about 'Album Artist' (Unlike Google's Music Manager)
-    * Preserves how many times you have listened to a track (still in development, dont' rely on it!)
+    * Preserves how many times you have listened to a track
     * Deletes the older file
 * Create a playlist with tracks you haven't listened to yet
-* Insert album arts
-    *  Searches for local image files in the music folder
+* Coming Soon: Insert album arts
+    * Searches for local image files in the music folder
     * If nothing is found, search the internet for it
 
 ##Getting started
@@ -33,7 +31,7 @@ To install python type in the following command (Ubuntu only):
 
 sudo apt-get install python
 
-The scripts only work with python2 (yet) and not with python3. To install the gmusicapi type in the following command:
+The scripts only work with python2 (yet) and not with python3. To install the gmusicapi, use the following command:
 
 pip install gmusicapi
 
@@ -51,6 +49,7 @@ The programm itself should be quite self-explanatory.
 ##To-Do's
 The following features will (hopefully) be in future releases:
 
+* Album Art upload
 * Case insensitive duplicate detection
 * Add a GUI
 _____________________________________________________________________
