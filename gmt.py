@@ -1,5 +1,8 @@
 
+import sys
+import pickle
 import modules.error as error
+import modules.config as config
 from modules.config import *
 from modules.misc import *
 from modules.duplicates import *
@@ -8,11 +11,18 @@ from modules.sync import *
 from modules.playlists import *
 from modules.error import ERROR
 
-gmtPrint("Reading Config... ", 0)
+if "-v" in sys.argv:
+    modules.misc.VERBOSE = 1
+if "-vv" in sys.argv:
+    modules.misc.VERBOSE = 2
+if "-vvv" in sys.argv:
+    modules.misc.VERBOSE = 3
+
+gmtPrintV("Reading Config... ")
 gmtConfigRead()
 if ERROR:
     gmtError("Bad config")
-gmtPrint("Done")
+gmtPrintV("Done")
 
 username, password = gmtGetLogin()
 
@@ -43,6 +53,7 @@ while 1:
     gmtPrint("")
     gmtPrint("Please select the action you would like to perform:")
     gmtPrint("")
+    gmtPrint(" ( 0) Exit")
     gmtPrint(" ( 1) Synchronize Google Music and your local files")
     gmtPrint(" ( 2) Detect and delete duplicated tracks in Google Music")
     gmtPrint(" ( 3) Generate a playlist with tracks you haven't listened yet")
@@ -50,14 +61,18 @@ while 1:
     gmtPrint(" ( 5) Backup metadata")
     gmtPrint(" ( 6) Reupload all songs")
     gmtPrint(" ( 7) Update list of uploaded files")
-    gmtPrint(" ( 8) Change the music folder (currently " + modules.config.root_dir + ")")
+    gmtPrint(" ( 8) Change the music folder (currently " + config.root_dir + ")")
     gmtPrint(" ( 9) Change trash directory")
     gmtPrint(" (10) Change path to credentials")
     gmtPrint(" (11) Change path to list of uploaded files")
     gmtPrint("")
-    choice = gmtAskUser("Your choice: ", ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11"])
+    choice = gmtAskUser("Your choice: ", ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11"])
     
-    if choice == "1":
+    if choice == "0":
+        
+        exit()
+        
+    elif choice == "1":
         
         to_upload, to_del_loc, to_del_rem = gmtGetSyncChanges(tracks, list)
         
@@ -104,19 +119,56 @@ while 1:
             gmtPrint("Aborted")
         
     elif choice == "2":
-        pass
+        
+        to_update, to_delete = gmtGetDuplicates(tracks)
+        
+        if len(to_update) == 0:
+            gmtPrint("No duplicates found")
+            continue
+        
+        gmtPrint("")
+        gmtPrint("Duplicates:")
+        gmtPrint("")
+        for x in to_update:
+            gmtPrint(x["artist"] + " - " + x["title"] + " (" + x["album"] + ")")
+        gmtPrint("")
+        if gmtAskUser("Apply changes (y/n)? ") == "y":
+            gmtPrint("Updating tracks... ", 0)
+            gmObj.change_song_metadata(to_update)
+            gmtPrint("Done")
+            gmtPrint("Deleting duplicates... ", 0)
+            gmObj.delete_songs(to_delete)
+            gmtPrint("Done")
+        
     elif choice == "3":
-        pass
+        
+        playlist = gmtGetNotListenedTracks(tracks)
+        if len(playlist) == 0:
+            gmtPrint("All tracks listened")
+            continue
+        name = gmtGetUserInput("Playlist name: ")
+        gmtPrint("Generating Playlist... ", 0)
+        gmtPlaylistNew(gmObj, playlist, name)
+        gmtPrint("Done")
+        
     elif choice == "4":
         pass
     elif choice == "5":
-        pass
+        
+        gmtPrint("Backing up Metadata... ", 0)
+        try:
+            with open("./data/meta.bk", "w") as file:
+                pickle.dump(tracks, file, pickle.HIGHEST_PROTOCOL)
+            gmtPrint("Done")
+        except IOError:
+            gmtPrint("Error while opening file")
+        
     elif choice == "6":
         pass
     elif choice == "7":
         
         try:
-            with open(modules.config.list_path, "w") as file:
+            with open(config.list_path, "w") as file:
                 for x in tracks:
                     file.write(x["artist"] + "\t" + x["title"] + "\t" + x["album"] + "\n")
             gmt("Written list of uploaded files")
@@ -124,13 +176,44 @@ while 1:
             gmtError("Couldn't write list file")
         
     elif choice == "8":
-        pass
+        
+        config.root_dir = gmtGetUserInput("New music directory: ");
+        gmtPrint("Writing Config... ", 0)
+        gmtConfigWrite("RootDirectory", config.root_dir)
+        if ERROR:
+            gmtPrint("Error while writing config")
+        else:
+            gmtPrint("Done")
+        
     elif choice == "9":
-        pass
+        
+        config.trash_path = gmtGetUserInput("New trash directory: ");
+        gmtPrint("Writing Config... ", 0)
+        gmtConfigWrite("TrashPath", config.trash_path)
+        if ERROR:
+            gmtPrint("Error while writing config")
+        else:
+            gmtPrint("Done")
+        
     elif choice == "10":
-        pass
+        
+        config.cred_path = gmtGetUserInput("New path to credentials: ");
+        gmtPrint("Writing Config... ", 0)
+        gmtConfigWrite("CredentialsPath", config.cred_path)
+        if ERROR:
+            gmtPrint("Error while writing config")
+        else:
+            gmtPrint("Done")
+        
     elif choice == "11":
-        pass
+        
+        config.list_path = gmtGetUserInput("New path to list of uploaded files: ");
+        gmtPrint("Writing Config... ", 0)
+        gmtConfigWrite("UploadedListPath", config.list_path)
+        if ERROR:
+            gmtPrint("Error while writing config")
+        else:
+            gmtPrint("Done")
 
 gmtPrint("Logging out... ", 0)
 gmtLogout(obj)

@@ -3,6 +3,7 @@
 import sys
 import modules.error as error
 from modules.error import ERROR
+from modules.misc import *
 
 def gmtGetNotListenedTracks(tracks):
 	ERROR = 0
@@ -22,4 +23,5 @@ def gmtGetNotListenedTracks(tracks):
 			ERROR = error.PLAYLIST_FULL
 			break
 	
+	gmtPrint("\rProcessing songs... 100%")
 	return playlist

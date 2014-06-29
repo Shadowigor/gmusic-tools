@@ -9,7 +9,7 @@ from operator import itemgetter
 from getpass import getpass
 from modules.error import ERROR
 
-VERBOSE = 3
+VERBOSE = 0
 
 def gmtGetAllSongs(gmObj):
 	ERROR = 0
