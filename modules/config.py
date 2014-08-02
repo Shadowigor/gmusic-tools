@@ -5,7 +5,6 @@ import os.path
 import modules.error as error
 from gmusicapi import Musicmanager
 from misc import *
-from modules.error import ERROR
 
 conf_path  = "data/config"
 std_usr    = ""
@@ -30,7 +29,7 @@ def gmtConfigRead():
 					gmtPrintV("gmtConfigRead: RootDirectory Config: " + root_dir)
 					if not os.path.exists(root_dir):
 						gmtPrintV("gmtConfigRead: Song directory not found")
-						ERROR = error.ROOT_DIR_NOT_FOUND
+						error.e = error.ROOT_DIR_NOT_FOUND
 						return
 
 				elif(line[:10] == "TrashPath="):
@@ -42,7 +41,7 @@ def gmtConfigRead():
 							os.makedirs(trash_path)
 						except IOError:
 							gmtPrintV("gmtConfigReadCouldn't generate trash directory")
-							ERROR = error.TRASH_ERROR
+							error.e = error.TRASH_ERROR
 							return
 				
 				elif(line[:16] == "CredentialsPath="):
@@ -54,10 +53,10 @@ def gmtConfigRead():
 								Musicmanager.perform_oauth(cred_path)
 							except:
 								gmtPrintV("gmtConfigRead: Generating credentials failed")
-								ERROR = error.FILE_ERROR
+								error.e = error.FILE_ERROR
 						else:
 							gmtPrintV("gmtConfigRead: Credentials needed to upload songs")
-							ERROR = error.LOGIN_FAILED
+							error.e = error.LOGIN_FAILED
 				
 				elif(line[:17] == "UploadedListPath="):
 					list_path = line[17:-1]
@@ -69,11 +68,11 @@ def gmtConfigRead():
 							file.close()
 						except IOError:
 							gmtError("gmtConfigRead: Couldn't generate list of uploaded files")
-							ERROR = error.LIST_ERROR
+							error.e = error.LIST_ERROR
 							return
 	except IOError:
 		gmtPrintV("gmtConfigRead: Couldn't open config file")
-		ERROR = error.CONFIG_READ_ERROR
+		error.e = error.CONFIG_READ_ERROR
 		return
 
 def gmtConfigWrite(key, value):
@@ -95,4 +94,4 @@ def gmtConfigWrite(key, value):
 				file.writelines(content)
 	except IOError:
 		gmtPrintV("Couldn't write config file")
-		ERROR = error.CONFIG_WRITE_FAILED
+		error.e = error.CONFIG_WRITE_FAILED

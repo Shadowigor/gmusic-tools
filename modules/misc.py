@@ -7,20 +7,19 @@ import modules.error as error
 from gmusicapi import Mobileclient
 from operator import itemgetter
 from getpass import getpass
-from modules.error import ERROR
 
 VERBOSE = 0
 
 def gmtGetAllSongs(gmObj):
-	ERROR = 0
+	error.e = 0
 	
-	if not isinstance(gmObj, Mobileclient):
-		ERROR = error.INVALID_ARGUMENT
+	if not isinstance(gmObj.mc, Mobileclient):
+		error.e = error.INVALID_ARGUMENT
 		gmtFatal("gmtGetAllSongs: Argument is not a valid GM-Object")
 	
-	tracks = gmObj.get_all_songs()
+	tracks = gmObj.mc.get_all_songs()
 	if not tracks:
-		ERROR = error.NO_SONGS
+		error.e = error.NO_SONGS
 		gmtPrintV("gmtGetAllSongs: Couldn't get tracks from Google Music")
 		return []
 	gmtPrintVV("gmtGetAllSongs: Got list of " + str(len(tracks)) + " Tracks")
@@ -30,7 +29,7 @@ def gmtGetAllSongs(gmObj):
 	return tracks
 
 def gmtGetLogin():
-	ERROR = 0
+	error.e = 0
 	
 	if modules.config.std_usr != "":
 		gmtPrintV("Using standard user, leave password blank to change")
@@ -43,7 +42,7 @@ def gmtGetLogin():
 			if gmtAskUser("Save username as standard username (y/n)? ") == "y" :
 				if  modules.config.gmtConfigWrite("StandardUsername", username) < 0:
 					gmtPrintV("Couldn't write config for standard user")
-					ERROR = error.CONFIG_WRITE_FAILED
+					error.e = error.CONFIG_WRITE_FAILED
 
 		password = getpass()
 		if password == "":
@@ -52,29 +51,8 @@ def gmtGetLogin():
 
 	return username, password
 
-def gmtLogin(username, password):
-	ERROR = 0
-	
-	gmObj = Mobileclient()
-	if not gmObj.login(username, password):
-		gmtPrintV("Wrong username or password (or no internet connection)")
-		ERROR = error.LOGIN_FAILED
-		return 0
-
-	return gmObj
-
-def gmtLogout(gmObj):
-	ERROR = 0
-	
-	if isinstance(gmObj, Mobileclient):
-		gmObj.logout()
-	else:
-		gmtPrintVV("Tried to logout a non-GM-Object")
-		ERROR = error.INVALID_ARGUMENT
-	
-
 def gmtGetUploadedList():
-	ERROR = 0
+	error.e = 0
 	
 	try:
 		if os.path.isfile(modules.config.list_path):
@@ -87,7 +65,7 @@ def gmtGetUploadedList():
 			return []
 	except IOError:
 		gmtPrintV("gmtGetUploadedList: Couldn't open list of uploaded files")
-		ERROR = error.FILE_ERROR
+		error.e = error.FILE_ERROR
 
 	return list
 

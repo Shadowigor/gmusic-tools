@@ -5,11 +5,12 @@ import modules.error as error
 import modules.config as config
 from modules.config import *
 from modules.misc import *
+from modules.gmobject import *
 from modules.duplicates import *
 from modules.not_listened import *
 from modules.sync import *
 from modules.playlists import *
-from modules.error import ERROR
+from modules.albumart import *
 
 if "-v" in sys.argv:
     modules.misc.VERBOSE = 1
@@ -20,27 +21,28 @@ if "-vvv" in sys.argv:
 
 gmtPrintV("Reading Config... ")
 gmtConfigRead()
-if ERROR:
+if error.e:
     gmtError("Bad config")
 gmtPrintV("Done")
 
 username, password = gmtGetLogin()
 
 gmtPrint("Logging in... ", 0)
-obj = gmtLogin(username, password)
-if ERROR:
+gmObj = gmObject()
+gmObj.login(username, password)
+if error.e:
     gmtFatal("Couldn't Login")
 gmtPrint("Done")
 
 gmtPrint("Getting songs from Google Music... ", 0)
-tracks = gmtGetAllSongs(obj)
-if ERROR:
+tracks = gmtGetAllSongs(gmObj)
+if error.e:
     gmtFatal("Couldn't get songs from google music")
 gmtPrint("Done")
 
 gmtPrint("Reading list of already uploaded songs... ")
 list = gmtGetUploadedList()
-if ERROR:
+if error.e:
     gmtFatal("Couldn't open list of already uploaded files")
 gmtPrint("Done")
 
@@ -104,7 +106,7 @@ while 1:
         gmtPrint("")
         if gmtAskUser("Apply changes (y/n)? ") == "y":
             if to_upload:
-                gmtUploadSongs(to_upload)
+                gmtUploadSongs(gmObj, to_upload)
             
             if to_del_loc:
                 gmtPrint("Deleting local files... ", 0)
@@ -152,7 +154,14 @@ while 1:
         gmtPrint("Done")
         
     elif choice == "4":
-        pass
+        
+        to_update = []
+        for i in range(len(tracks)):
+            if tracks[i]["artist"] == u"Annakin" and tracks[i]["album"] == u"Stand Your Ground":
+                tracks[i]["albumArtUrl"] = u"http://www.cede.ch/covers/cd/1131000/xl1131039.jpg" #gmtGetAlbumArtURL(tracks[i], "")
+                to_update.append(tracks[i])
+        gmObj.change_song_metadata(to_update)
+        
     elif choice == "5":
         
         gmtPrint("Backing up Metadata... ", 0)
@@ -164,7 +173,9 @@ while 1:
             gmtPrint("Error while opening file")
         
     elif choice == "6":
-        pass
+        
+        gmtPrint("Feature not implemented yet")
+        
     elif choice == "7":
         
         try:
@@ -180,7 +191,7 @@ while 1:
         config.root_dir = gmtGetUserInput("New music directory: ");
         gmtPrint("Writing Config... ", 0)
         gmtConfigWrite("RootDirectory", config.root_dir)
-        if ERROR:
+        if error.e:
             gmtPrint("Error while writing config")
         else:
             gmtPrint("Done")
@@ -190,7 +201,7 @@ while 1:
         config.trash_path = gmtGetUserInput("New trash directory: ");
         gmtPrint("Writing Config... ", 0)
         gmtConfigWrite("TrashPath", config.trash_path)
-        if ERROR:
+        if error.e:
             gmtPrint("Error while writing config")
         else:
             gmtPrint("Done")
@@ -200,7 +211,7 @@ while 1:
         config.cred_path = gmtGetUserInput("New path to credentials: ");
         gmtPrint("Writing Config... ", 0)
         gmtConfigWrite("CredentialsPath", config.cred_path)
-        if ERROR:
+        if error.e:
             gmtPrint("Error while writing config")
         else:
             gmtPrint("Done")
@@ -210,11 +221,11 @@ while 1:
         config.list_path = gmtGetUserInput("New path to list of uploaded files: ");
         gmtPrint("Writing Config... ", 0)
         gmtConfigWrite("UploadedListPath", config.list_path)
-        if ERROR:
+        if error.e:
             gmtPrint("Error while writing config")
         else:
             gmtPrint("Done")
 
 gmtPrint("Logging out... ", 0)
-gmtLogout(obj)
+gmtLogout(gmObj)
 gmtPrint("Done")

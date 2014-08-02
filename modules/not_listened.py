@@ -2,11 +2,10 @@
 
 import sys
 import modules.error as error
-from modules.error import ERROR
 from modules.misc import *
 
 def gmtGetNotListenedTracks(tracks):
-	ERROR = 0
+	error.e = 0
 	
 	playlist = []
 	i = 0
@@ -20,7 +19,7 @@ def gmtGetNotListenedTracks(tracks):
 			playlist.append(track["id"])
 		if(len(playlist) >= 1000):
 			gmtPrint(" Playlist full")
-			ERROR = error.PLAYLIST_FULL
+			error.e = error.PLAYLIST_FULL
 			break
 	
 	gmtPrint("\rProcessing songs... 100%")

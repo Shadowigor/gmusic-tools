@@ -8,11 +8,10 @@ import modules.error as error
 from mutagen.easyid3 import EasyID3
 from mutagen.flac import FLAC
 from misc import *
-from modules.error import ERROR
 from gmusicapi import Musicmanager
 
 def gmtGetSyncChanges(tracks, list):
-	ERROR = 0
+	error.e = 0
 	
 	to_upload = []
 	to_delete = []
@@ -25,7 +24,7 @@ def gmtGetSyncChanges(tracks, list):
 	
 	if(file_count == 0):
 		gmtPrintV("No files found")
-		ERROR = error.NO_SONGS
+		error.e = error.NO_SONGS
 		return [], [], []
 	
 	for root, subFolder, files in os.walk(modules.config.root_dir):
@@ -65,7 +64,7 @@ def gmtGetSyncChanges(tracks, list):
 	return to_upload, to_delete, tracks # To Upload, To Delete Locally, To Delete Remotely
 
 def gmtMoveToTrash(to_delete):
-	ERROR = 0
+	error.e = 0
 	
 	try:
 		for x in to_delete:
@@ -73,32 +72,26 @@ def gmtMoveToTrash(to_delete):
 		gmtPrintVV("gmtMoveToTrash: Moved " + str(len(to_delete)) + " files")
 	except:
 		gmtPrintV("gmtMoveToTrash: Cannot move files")
-		ERROR = error.FILE_ERROR
+		error.e = error.FILE_ERROR
 
 def gmtDeleteTracks(gmObj, to_delete):
-	ERROR = 0
+	error.e = 0
 	
 	i = 0
 	for x in to_delete:
-		if not gmObj.delete_songs(x["id"]):
+		if not gmObj.mc.delete_songs(x["id"]):
 			i += 1
 	gmtPrintVV("gmtDeleteTracks: Deleted " + str(len(to_delete) - i) + " files")
 	if i:
 		gmtPrintV("Failed to delete " + str(i) + " songs")
-		ERROR = error.FILE_ERROR
+		error.e = error.FILE_ERROR
 		return -i
 	return 0
 
-def gmtUploadSongs(to_upload):
-	ERROR = 0
+def gmtUploadSongs(gmObj, to_upload):
+	error.e = 0
 	
 	failed = []
-	
-	upObj = Musicmanager()
-	if not upObj.login(modules.config.cred_path):
-		gmtPrintV("gmtUploadSongs: Wrong credentials (or no internet connection)")
-		ERROR = error.LOGIN_FAILED
-		return []
 	
 	i = 0
 	file_count = len(to_upload)
@@ -108,11 +101,10 @@ def gmtUploadSongs(to_upload):
 		gmtPrint("\33[2K\r", 0)
 		gmtPrint("Uploading files... " + str((100 * i) / file_count).rjust(3) + "% " + file, 0)
 		i += 1
-		x = upObj.upload(file, "320k")
+		x = gmObj.mm.upload(file, "320k")
 		if x[2]:
 			failed.append(file)
 	
-	upObj.logout()
 	sys.stdout.write("\33[2K\r")
 	gmtPrint("Uploading files... 100%")
 	
